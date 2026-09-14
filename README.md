@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/32178959/README.md)
 # Helpdesk Ticket Log
 
 This is a running log of simulated helpdesk tickets from my Active Directory homelab. 
@@ -18,8 +17,8 @@ To fix it, I checked the "Unlock account" box and hit apply. Went back and logge
 him again with the right password just to make sure it actually worked, and it did.
 
 ![Locked out message](ticket01-symptom.png)
-![Locked account confirmed in AD](ticket01-diagnosis.png)
-![Successful login after unlock](ticket01-resolution.png)
+![Unlocking the account in AD](ticket01-resolution.png)
+![Successful login after unlock](ticket01-resolution2.png)
 
 ---
 
@@ -33,7 +32,9 @@ Logged in as her on the client to test it out, got the "you must change your pas
 prompt like expected, set a new one, and confirmed I could log in fine afterward.
 
 ![Password reset in AD](ticket02-symptom.png)
-![Successful login with new password](ticket02-resolution.png)
+![Password reset applied](ticket02-resolution1.png)
+![Password change confirmation](ticket02-resolution2.png)
+![Successful login with new password](ticket02-resolution3.png)
 
 ---
 
@@ -47,8 +48,8 @@ Added him back to SG-Sales and had him try the folder again. It opened right up 
 that, so the fix worked.
 
 ![Access denied error](ticket03-symptom.png)
-![Diagnosis and fix in PowerShell](ticket03-diagnosis-fix.png)
-![Successful access after fix](ticket03-resolution.png)
+![Diagnosis and fix in PowerShell](ticket03-resolution.png)
+![Successful access after fix](ticket03-resolution2.png)
 
 ---
 
@@ -77,7 +78,7 @@ and moved him into the Disabled Users OU to keep things organized.
 Double checked afterward that everything took — account shows disabled and sitting in 
 the right OU now.
 
-![Offboarding steps and confirmation](ticket05-offboarding.png)
+![Offboarding steps and confirmation](ticket05-resolution.png)
 
 ---
 
