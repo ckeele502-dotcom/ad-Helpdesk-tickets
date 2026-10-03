@@ -117,16 +117,14 @@ settings in PowerShell. Found it was pointed at `192.168.1.250` instead of the a
 domain controller — nslookup against the domain came back with no response, confirming 
 it couldn't resolve anything.
 
-Repointed the adapter to the real DC address, flushed the DNS cache so nothing stale was 
-left behind, and re-ran nslookup to confirm it resolved. Went back into File Explorer and 
-all the department shares loaded normally again.
+Repointed the adapter to the real DC address and re-ran nslookup, which resolved 
+correctly. Went back into File Explorer and all the department shares loaded normally 
+again.
 
 ![File Explorer error reproducing the issue](ticket07-symptom.png)
-![DNS server pointed at the wrong address](ticket07-diagnosis1.png)
-![nslookup failing against the bad DNS server](ticket07-diagnosis2.png)
-![DNS server corrected and cache flushed](ticket07-resolution1.png)
-![nslookup succeeding after the fix](ticket07-resolution2.png)
-![Department shares loading normally again](ticket07-resolution3.png)
+![DNS pointed at the wrong address, nslookup failing](ticket07-diagnosis1.png)
+![DNS corrected, nslookup resolving successfully](ticket07-resolution1.png)
+![Department shares loading normally again](ticket07-resolution2.png)
 
 ---
 
@@ -136,24 +134,20 @@ John Smith's machine suddenly showed "No internet access" and couldn't reach any
 drives. He mentioned a coworker on the same network was fine, which at first pointed at 
 something specific to his machine — that turned out not to be the whole story.
 
-Checked his current IP config as a baseline, then released and tried to renew the lease 
-to see how it'd behave. The renew attempt hung for several minutes and eventually fell 
-back to an APIPA address (169.254.x.x) with no default gateway — a clear sign the machine 
-couldn't reach a DHCP server at all.
-
-Checked the DHCP Server service on the domain controller and found it had stopped, 
-cutting off leases for every client on the network — not just his. His coworker just 
-hadn't hit a renewal yet, which is why they weren't seeing it.
+Confirmed DHCP was healthy to start, then stopped the DHCP Server service on the domain 
+controller to simulate the failure. Back on the client, tried to renew the lease and it 
+fell back to an APIPA address (169.254.x.x) with no default gateway — a clear sign the 
+machine couldn't reach a DHCP server at all. That lines up with "no internet, no shares" 
+even though basic hardware/networking was fine.
 
 Restarted the DHCP Server service on the DC, confirmed it came back up, then had the 
 client renew again — pulled a normal address immediately and everything worked.
 
-![Baseline ipconfig showing a normal lease](ticket08-baseline.png)
-![Releasing the lease](ticket08-diagnosis1.png)
-![DHCP Server service stopped on the DC](ticket08-diagnosis2.png)
-![Renew failing and falling back to APIPA](ticket08-diagnosis3.png)
+![DHCP Server running normally (baseline)](ticket08-baseline.png)
+![DHCP Server service stopped to simulate the failure](ticket08-diagnosis2.png)
+![Client falling back to APIPA with no gateway](ticket08-diagnosis3.png)
 ![DHCP Server service restarted](ticket08-resolution1.png)
-![Renew succeeding, valid IP restored](ticket08-resolution2.png)
+![Client renewing successfully, valid IP restored](ticket08-resolution2.png)
 
 ---
 
@@ -163,20 +157,17 @@ John Smith reported his mapped S: drive was throwing an error and he couldn't ge
 of his files, even though it had been working fine the day before. Confirmed the drive 
 was still mapped correctly on his end, but opening it gave a network error.
 
-Ran `Test-Path` against the share and it came back False — not a permissions issue, the 
-path just wasn't reachable at all. Checked the share directly on the file server with 
-`Get-SmbShare` and got nothing back — the Sales share had been removed entirely, even 
-though the actual folder and data were still sitting there untouched. Most likely someone 
-unshared it by accident while cleaning up a neighboring folder.
+Checked the share directly on the file server with `Get-SmbShare` and got nothing back — 
+the Sales share had been removed entirely, even though the actual folder and data were 
+still sitting there untouched. Most likely someone unshared it by accident while cleaning 
+up a neighboring folder.
 
 Re-shared the folder from the server, confirmed it showed up again with `Get-SmbShare`, 
-then re-ran `Test-Path` on the client — came back True. Opened the S: drive again and it 
+then ran `Test-Path` on the client — came back True. Opened the S: drive again and it 
 loaded normally, no error.
 
 ![S: drive working normally (baseline)](ticket09-baseline.png)
 ![Client-side network error](ticket09-symptom.png)
-![Sales share missing from the server](ticket09-diagnosis1.png)
-![Test-Path returning False](ticket09-diagnosis2.png)
 ![Share restored on the server](ticket09-resolution1.png)
 ![Test-Path returning True, drive opening normally](ticket09-resolution2.png)
 
@@ -202,7 +193,3 @@ normally.
 ![Task Manager showing the runaway PowerShell process](ticket10-diagnosis1.png)
 ![Performance tab confirming sustained CPU load](ticket10-diagnosis2.png)
 ![CPU usage back to normal after ending the process](ticket10-resolution.png)
-
----
-
-*More tickets added as they're completed.*
